@@ -1,0 +1,15 @@
+Your algorithms should be plain English explanations for the steps your program will take to solve these problems.
+
+Write out your algorithm for Problem 2 here:
+find_best_shift
+
+start with shift n = 1
+
+repeat
+   try decode with shift n
+   count number of valid words with shift n
+   if all decoded words are valid words, n is best shift
+   increase n by 1, until n reaches 27
+
+
+Write out your algorithm for Problem 4 here:
