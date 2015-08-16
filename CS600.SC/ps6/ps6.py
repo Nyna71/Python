@@ -214,7 +214,15 @@ class StandardRobot(Robot):
         Move the robot to a new position and mark the tile it is on as having
         been cleaned.
         """
-        raise NotImplementedError
+        while True:
+            newPosition = self.position.getNewPosition(self.direction, self.speed)
+            if self.room.isPositionInRoom(newPosition):
+                self.setRobotPosition(newPosition)
+                break
+            else:
+                self.setRobotDirection(random.randint(0, 359))
+        
+        self.room.cleanTileAtPosition(self.getRobotPosition())
 
 # === Problem 3
 
@@ -235,8 +243,34 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     num_trials: an int (num_trials > 0)
     robot_type: class of robot to be instantiated (e.g. Robot or
                 RandomWalkRobot)
-    """
-    raise NotImplementedError
+    """    
+    timeSteps = []
+    
+    for i in range(num_trials):
+        #Prepare room and robot visuaalizations
+        #anim = ps6_visualize.RobotVisualization(num_robots, width, height)        
+        
+        #Same room is shared by multiple robots
+        room = RectangularRoom(width, height)
+        robots = []
+        for r in range(num_robots):
+            robots.append(robot_type(room, speed))
+
+        nbrSteps = 0
+        roomIsNotCleaned = True
+        
+        while roomIsNotCleaned:
+            for robot in robots:
+                robot.updatePositionAndClean()
+                if float(room.getNumCleanedTiles()) / room.getNumTiles() >= min_coverage:
+                    roomIsNotCleaned = False
+                    break
+            nbrSteps += 1
+            #anim.update(room, robots)
+        timeSteps.append(nbrSteps)
+    
+    #anim.done()      
+    return pylab.mean(timeSteps)    
 
 
 # === Problem 4
@@ -244,13 +278,63 @@ def showPlot1():
     """
     Produces a plot showing dependence of cleaning time on number of robots.
     """ 
-    raise NotImplementedError
+    cleanSteps = []
+    
+    for robots in range(1, 11):
+        cleanSteps.append(runSimulation(robots, 1.0, 20, 20, 0.8, 10, StandardRobot))
+    
+    pylab.figure()
+    pylab.plot(range(1,11), cleanSteps)
+    pylab.xlabel("Nbr robots")
+    pylab.ylabel("Mean Steps")
+    pylab.title("Mean time to clean 80% or a 20x20 room using 1-10 standard robots")
+    pylab.show()
+    
+    cleanSteps = []
+    xLabel = []
+    rooms = [(20,20), (25,16), (40,10), (50,8), (80,5), (100,4)]
+    
+    for room in rooms:
+        cleanSteps.append(runSimulation(2, 1.0, room[0], room[1], 0.8, 10, StandardRobot))
+        xLabel.append(room[0] / room[1])
+        
+    pylab.figure()
+    pylab.plot(xLabel, cleanSteps)
+    pylab.xlabel("Width / Height ratio")
+    pylab.ylabel("Mean Steps")
+    pylab.title("Mean time to clean 80% of various 20x20 rooms using 2 standard robots")
+    pylab.show()
+    
+    cleanSteps = []
+    xLabel = []
+    rooms = [(5,5), (10,10), (10,20), (20,20), (30,30), (40,40)]
+    
+    for room in rooms:
+        cleanSteps.append(runSimulation(3, 1.0, room[0], room[1], 0.7, 10, StandardRobot))
+        xLabel.append(room[0] * room[1])
+        
+    pylab.figure()
+    pylab.plot(xLabel, cleanSteps)
+    pylab.xlabel("Rooms area")
+    pylab.ylabel("Mean Steps")
+    pylab.title("Mean time to clean 70% of various room areas using 3 standard robots")
+    pylab.show()
 
 def showPlot2():
     """
     Produces a plot showing dependence of cleaning time on room shape.
     """
-    raise NotImplementedError
+    cleanSteps = []
+    
+    for robots in range(1, 11):
+        cleanSteps.append(runSimulation(robots, 1.0, 20, 20, 0.8, 10, RandomWalkRobot))
+    
+    pylab.figure()
+    pylab.plot(range(1,11), cleanSteps)
+    pylab.xlabel("Nbr robots")
+    pylab.ylabel("Mean Steps")
+    pylab.title("Mean time to clean 80% or a 20x20 room using 1-10 random walk robots")
+    pylab.show()
 
 # === Problem 5
 
@@ -259,16 +343,18 @@ class RandomWalkRobot(Robot):
     A RandomWalkRobot is a robot with the "random walk" movement strategy: it
     chooses a new direction at random after each time-step.
     """
-    raise NotImplementedError
+    def updatePositionAndClean(self):
+        """
+        Simulate the passage of a single time-step.
 
-
-# === Problem 6
-
-# For the parameters tested below (cleaning 80% of a 20x20 square room),
-# RandomWalkRobots take approximately twice as long to clean the same room as
-# StandardRobots do.
-def showPlot3():
-    """
-    Produces a plot comparing the two robot strategies.
-    """
-    raise NotImplementedError
+        Move the robot to a new position and mark the tile it is on as having
+        been cleaned.
+        """
+        while True:
+            newPosition = self.position.getNewPosition(self.direction, self.speed)
+            self.setRobotDirection(random.randint(0, 359))
+            if self.room.isPositionInRoom(newPosition):
+                self.setRobotPosition(newPosition)
+                break
+        
+        self.room.cleanTileAtPosition(self.getRobotPosition())
