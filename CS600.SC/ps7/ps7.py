@@ -142,6 +142,7 @@ class SimplePatient(object):
         for virus in newViruses:
             self.viruses.append(virus)
 
+        return self.getTotalPop()
 
 #
 # PROBLEM 2
@@ -159,8 +160,7 @@ def simulationWithoutDrug():
     sp = SimplePatient(getViruses(100, 0.1, 0.05) , 1000)
     
     for i in range (0, 300):
-        populationEvolution.append(sp.getTotalPop())
-        sp.update()
+        populationEvolution.append(sp.update())
         
     plotPopulation(populationEvolution)
     
