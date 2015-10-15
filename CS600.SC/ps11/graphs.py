@@ -15,6 +15,10 @@ class Node(object):
         return self.name
     def __eq__(self, other):
         return self.getName() == other.getName()
+    def __repr__(self):
+        return self.name
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class Edge(object):
     def __init__(self, src, dest, weight = 0):
@@ -60,8 +64,12 @@ class Digraph(object):
         print "Edge:", edge
         src = edge.getSource()
         dest = edge.getDestination()
-        if not(src in self.nodes and dest in self.nodes):
-           raise ValueError('Node not in graph')
+                
+        for node in self.nodes:
+            print "Node:-" + str(node) + "-"
+        
+        if not(src in self.nodes):
+            raise ValueError('Source Node not in graph:' + str(src) )
         self.edges[src].append(edge)
         
     def childrenOf(self, node):
